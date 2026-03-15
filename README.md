@@ -26,15 +26,27 @@ Requirements:
 ### Windows Setup (PowerShell)
 
 1. Install JDK 17 (or newer).
-2. Install Maven 3.9+.
-3. Verify both are available in `PATH`:
+2. Install Maven in an elevated (Run as Administrator) PowerShell:
+
+```powershell
+choco install maven -y
+```
+
+3. Open a new PowerShell window (or refresh environment), then verify Java + Maven:
 
 ```powershell
 java -version
 mvn -version
 ```
 
-If Maven is not found, add Maven `bin` to your user `PATH` and reopen PowerShell.
+If Maven is still not found, refresh `PATH` in the current shell:
+
+```powershell
+$machinePath=[System.Environment]::GetEnvironmentVariable('Path','Machine')
+$userPath=[System.Environment]::GetEnvironmentVariable('Path','User')
+$env:Path="$machinePath;$userPath"
+mvn -version
+```
 
 Common locations:
 
@@ -47,10 +59,18 @@ Optional `JAVA_HOME` setup:
 setx JAVA_HOME "C:\Program Files\Java\jdk-17"
 ```
 
-Then close and reopen PowerShell, and run:
+4. Run the app:
 
 ```powershell
 cd C:\path\to\JavaFx
+mvn clean javafx:run
+```
+
+If your project path contains non-ASCII characters (for example Vietnamese accents), JavaFX may fail with `InvalidPathException`. Use an ASCII-only junction path, then run from it:
+
+```powershell
+New-Item -ItemType Junction -Path "$env:USERPROFILE\JavaFxDemo" -Target "C:\Môn học thực hành 2024\DoAn_KhoDuLieu_OLAP\JavaFx"
+cd "$env:USERPROFILE\JavaFxDemo"
 mvn clean javafx:run
 ```
 
@@ -141,6 +161,9 @@ mvn javafx:run
 	- JDK is not in `PATH` (or only JRE installed). Install JDK 17 and re-check `java -version`.
 - JavaFX app does not open from terminal
 	- Re-run with `mvn -e javafx:run` and check that Java/Maven versions are correctly detected.
+- `InvalidPathException: Illegal char` when running `mvn javafx:run`
+	- Usually caused by non-ASCII characters in the project path on Windows.
+	- Create and run from an ASCII-only junction path (example above).
 
 ### Linux Troubleshooting
 
